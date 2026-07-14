@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mortgage Case Intelligence Demo</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <section class="hero card">
+        <div>
+          <p class="eyebrow">AI Foundry connection demo</p>
+          <h1>Mortgage document processing and reviewer support</h1>
+          <p class="lede">
+            Upload a financing case document pack, prepare a Foundry AI case
+            intelligence request, and review completeness, extracted facts, and
+            risk flags in one place.
+          </p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Demo architecture</h2>
+        <div class="architecture">
+          <article>
+            <h3>Case ingest</h3>
+            <p>Europace UI, upload API, or a demo upload folder receives the mortgage document pack.</p>
+          </article>
+          <article>
+            <h3>Document AI</h3>
+            <p>Document Intelligence / Content Understanding classifies documents and extracts fields.</p>
+          </article>
+          <article>
+            <h3>Foundry agent</h3>
+            <p>Orchestrates extraction, rule checks, context retrieval, and reviewer-ready case summary generation.</p>
+          </article>
+          <article>
+            <h3>Business-rule/API tools</h3>
+            <p>Calls underwriting pre-check logic, product criteria validation, and internal risk or completeness services.</p>
+          </article>
+          <article>
+            <h3>Evaluation / observability</h3>
+            <p>Traces each step, monitors failures, and records groundedness and human-feedback signals.</p>
+          </article>
+          <article>
+            <h3>Output</h3>
+            <p>Returns structured JSON, completeness status, missing documents, plausibility flags, and reviewer notes.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="grid">
+        <section class="card">
+          <h2>1. Financing case intake</h2>
+          <form id="case-form">
+            <div class="form-grid">
+              <label>
+                Case ID
+                <input id="case-id" name="caseId" type="text" value="CASE-1001" required />
+              </label>
+              <label>
+                Applicant name
+                <input id="applicant-name" name="applicantName" type="text" placeholder="Jordan Lee" />
+              </label>
+              <label>
+                Requested loan amount
+                <input id="loan-amount" name="loanAmount" type="number" min="0" step="0.01" placeholder="650000" />
+              </label>
+              <label>
+                Declared monthly income
+                <input id="declared-income" name="declaredIncome" type="number" min="0" step="0.01" placeholder="9500" />
+              </label>
+              <label>
+                Monthly debt obligations
+                <input id="monthly-debt" name="monthlyDebt" type="number" min="0" step="0.01" placeholder="1800" />
+              </label>
+              <label>
+                Preferred contact check
+                <select id="contact-channel" name="contactChannel">
+                  <option value="voice">Voice</option>
+                  <option value="chat">Chat</option>
+                  <option value="email">Email</option>
+                </select>
+              </label>
+            </div>
+
+            <label>
+              Document pack
+              <input
+                id="documents"
+                name="documents"
+                type="file"
+                multiple
+                accept=".pdf,.png,.jpg,.jpeg,.txt,.csv,.doc,.docx"
+              />
+            </label>
+
+            <label>
+              Supporting notes / OCR snippets
+              <textarea
+                id="document-notes"
+                name="documentNotes"
+                rows="10"
+                placeholder="Applicant: Jordan Lee&#10;Employer: Northwind Finance&#10;Monthly income: $9200&#10;Property value: $780000&#10;Balance: $35500&#10;Tax assessment year: 2024&#10;ID: JL-93821"
+              ></textarea>
+            </label>
+
+            <div class="actions">
+              <button type="submit">Analyze case</button>
+              <button id="load-demo" type="button" class="secondary">Load sample case</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2>2. Voice and chat reviewer assistant</h2>
+          <p class="helper">
+            Ask about completeness, risks, extracted income, property value, or
+            case summary.
+          </p>
+          <div class="chat-controls">
+            <input id="chat-question" type="text" placeholder="What risks are open on this case?" />
+            <button id="ask-chat" type="button">Ask</button>
+            <button id="voice-input" type="button" class="secondary">Start voice input</button>
+          </div>
+          <p id="voice-status" class="helper"></p>
+          <div id="chat-log" class="chat-log" aria-live="polite"></div>
+        </section>
+      </section>
+
+      <section class="grid">
+        <section class="card">
+          <h2>Foundry AI request preview</h2>
+          <pre id="foundry-preview" class="output"></pre>
+        </section>
+
+        <section class="card">
+          <h2>Case intelligence results</h2>
+          <div id="results" class="results">
+            <article>
+              <h3>Document classification</h3>
+              <ul id="document-list"></ul>
+            </article>
+            <article>
+              <h3>Completeness</h3>
+              <ul id="completeness-list"></ul>
+            </article>
+            <article>
+              <h3>Structured extraction</h3>
+              <dl id="extraction-list"></dl>
+            </article>
+            <article>
+              <h3>Risk flags</h3>
+              <ul id="risk-list"></ul>
+            </article>
+            <article>
+              <h3>Evaluation and observability</h3>
+              <ul id="trace-list"></ul>
+            </article>
+            <article>
+              <h3>Reviewer-ready case summary</h3>
+              <div id="summary" class="summary"></div>
+            </article>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

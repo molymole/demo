@@ -132,6 +132,7 @@ button.secondary {
 .output,
 .chat-log,
 .summary {
+  white-space: pre-line;
   min-height: 120px;
   background: #0f1729;
   color: #eaf0ff;

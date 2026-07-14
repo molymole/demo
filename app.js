@@ -301,17 +301,17 @@ function buildSummary(caseData, extraction, completeness, risks, documents) {
   const topRisks = risks.slice(0, 3).join(" ");
 
   return [
-    `<p><strong>Case ${caseData.caseId}</strong> for <strong>${extraction.applicantName || "Unknown applicant"}</strong> is currently <strong>${ready}</strong>.</p>`,
-    `<p>The pack includes <strong>${documents.length}</strong> uploaded documents. Verified income is <strong>${currency(extraction.extractedMonthlyIncome || caseData.declaredIncome)}</strong>, requested loan amount is <strong>${currency(caseData.loanAmount)}</strong>, and property value is <strong>${currency(extraction.propertyValue)}</strong>.</p>`,
-    `<p><strong>Reviewer focus:</strong> ${topRisks}</p>`,
-  ].join("");
+    `Case ${caseData.caseId} for ${extraction.applicantName || "Unknown applicant"} is currently ${ready}.`,
+    `The pack includes ${documents.length} uploaded documents. Verified income is ${currency(extraction.extractedMonthlyIncome || caseData.declaredIncome)}, requested loan amount is ${currency(caseData.loanAmount)}, and property value is ${currency(extraction.propertyValue)}.`,
+    `Reviewer focus: ${topRisks}`,
+  ].join("\n");
 }
 
 function renderList(list, values, formatter) {
   list.innerHTML = "";
   values.forEach((value) => {
     const item = document.createElement("li");
-    item.innerHTML = formatter(value);
+    item.textContent = formatter(value);
     list.appendChild(item);
   });
 }
@@ -348,7 +348,7 @@ function renderConfiguration() {
   renderList(
     configList,
     Object.entries(appConfig),
-    ([key, value]) => `<strong>${labels[key]}</strong>: <code>${value}</code>`
+    ([key, value]) => `${labels[key]}: ${value}`
   );
 }
 
@@ -376,13 +376,13 @@ function analyzeCase(filesOverride) {
     documentList,
     documents,
     (document) =>
-      `<strong>${document.fileName}</strong> — ${document.category} · ${document.fileType} · ${document.sizeKb} KB`
+      `${document.fileName} — ${document.category} · ${document.fileType} · ${document.sizeKb} KB`
   );
   renderList(completenessList, completeness, (item) => item.message);
   renderExtraction(extraction);
   renderList(riskList, risks, (risk) => risk);
-  renderList(traceList, trace, (step) => `<strong>${step.stage}</strong> — ${step.status}: ${step.detail}`);
-  summary.innerHTML = buildSummary(caseData, extraction, completeness, risks, documents);
+  renderList(traceList, trace, (step) => `${step.stage} — ${step.status}: ${step.detail}`);
+  summary.textContent = buildSummary(caseData, extraction, completeness, risks, documents);
 
   latestCaseAnalysis = {
     caseData,
@@ -400,7 +400,11 @@ function analyzeCase(filesOverride) {
 function appendChatMessage(role, message) {
   const entry = document.createElement("div");
   entry.className = "chat-entry";
-  entry.innerHTML = `<strong>${role}</strong><span>${message}</span>`;
+  const roleNode = document.createElement("strong");
+  roleNode.textContent = role;
+  const messageNode = document.createElement("span");
+  messageNode.textContent = message;
+  entry.append(roleNode, messageNode);
   chatLog.prepend(entry);
 }
 
@@ -477,7 +481,7 @@ loadDemoButton.addEventListener("click", () => {
     "Employer: Northwind Finance",
     "Monthly income: $9200",
     "Property value: $780000",
-    "Balance: $9500",
+    "Balance: $35500",
     "Tax assessment year: 2024",
     "ID: JL-93821",
   ].join("\n");
@@ -541,5 +545,5 @@ voiceInputButton.addEventListener("click", () => {
 });
 
 foundryPreview.textContent = "Analyze a case to prepare the Foundry AI request payload.";
-summary.innerHTML = "<p>No case analyzed yet.</p>";
+summary.textContent = "No case analyzed yet.";
 renderConfiguration();

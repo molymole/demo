@@ -30,6 +30,27 @@ const voiceInputButton = document.getElementById("voice-input");
 const chatQuestionInput = document.getElementById("chat-question");
 const chatLog = document.getElementById("chat-log");
 const voiceStatus = document.getElementById("voice-status");
+const configList = document.getElementById("config-list");
+
+const appConfig = (() => {
+  const defaults = {
+    azureFoundryEndpoint: "https://example-resource.openai.azure.com/openai",
+    azureFoundryApiVersion: "2024-05-01-preview",
+    azureFoundryProject: "mortgage-doc-intelligence-demo",
+    azureFoundryAgentId: "financing-document-intelligence",
+    caseIngestEndpoint: "https://demo.local/api/case-ingest",
+    documentAiEndpoint: "https://demo.local/api/document-ai",
+    businessRulesEndpoint: "https://demo.local/api/business-rules",
+  };
+  const runtime = typeof window !== "undefined" && window.__DEMO_CONFIG__ ? window.__DEMO_CONFIG__ : {};
+
+  return Object.fromEntries(
+    Object.entries(defaults).map(([key, fallback]) => {
+      const value = runtime[key];
+      return [key, typeof value === "string" && value.trim() ? value.trim() : fallback];
+    })
+  );
+})();
 
 let latestCaseAnalysis = null;
 
@@ -184,7 +205,7 @@ function buildTrace(caseData, documents, completeness, risks, ruleChecks) {
   return [
     {
       stage: "case_ingest",
-      system: "Europace UI / upload API / demo folder",
+      system: `Europace UI / upload API / demo folder (${appConfig.caseIngestEndpoint})`,
       status: documents.length ? "completed" : "waiting",
       detail: documents.length
         ? `Received ${documents.length} document(s) for ${caseData.caseId}.`
@@ -192,19 +213,19 @@ function buildTrace(caseData, documents, completeness, risks, ruleChecks) {
     },
     {
       stage: "document_ai",
-      system: "Document Intelligence / Content Understanding",
+      system: `Document Intelligence / Content Understanding (${appConfig.documentAiEndpoint})`,
       status: "completed",
       detail: `Classified documents and extracted core financial and identity signals.`,
     },
     {
       stage: "foundry_agent",
-      system: "Foundry financing document intelligence agent",
+      system: `${appConfig.azureFoundryProject}/${appConfig.azureFoundryAgentId}`,
       status: "completed",
       detail: `Generated completeness review, plausibility checks, and reviewer summary.`,
     },
     {
       stage: "business_rules",
-      system: "Internal rules / validation APIs / product criteria services",
+      system: `Internal rules / validation APIs / product criteria services (${appConfig.businessRulesEndpoint})`,
       status: "completed",
       detail: `Underwriting pre-check: ${ruleChecks.underwritingPreCheck}; product criteria: ${ruleChecks.productCriteriaCheck}.`,
     },
@@ -223,9 +244,25 @@ function buildTrace(caseData, documents, completeness, risks, ruleChecks) {
   ];
 }
 
+function foundryRequestUrl() {
+  const base = appConfig.azureFoundryEndpoint.replace(/\/+$/, "");
+  const query = `api-version=${encodeURIComponent(appConfig.azureFoundryApiVersion)}`;
+  return `${base}/agents/${encodeURIComponent(appConfig.azureFoundryAgentId)}/runs?${query}`;
+}
+
 function buildFoundryRequest(caseData, documents, extraction, completeness, risks, notes, ruleChecks, trace) {
   return {
     agent: "foundry-financing-document-intelligence",
+    connectivity: {
+      foundryEndpoint: appConfig.azureFoundryEndpoint,
+      foundryApiVersion: appConfig.azureFoundryApiVersion,
+      foundryProject: appConfig.azureFoundryProject,
+      foundryAgentId: appConfig.azureFoundryAgentId,
+      caseIngestEndpoint: appConfig.caseIngestEndpoint,
+      documentAiEndpoint: appConfig.documentAiEndpoint,
+      businessRulesEndpoint: appConfig.businessRulesEndpoint,
+      foundryRequestUrl: foundryRequestUrl(),
+    },
     architecture: {
       ingest: "Europace UI / upload API / demo upload folder",
       documentAI: "Document Intelligence / Content Understanding",
@@ -296,6 +333,23 @@ function renderExtraction(extraction) {
 
     extractionList.append(term, description);
   });
+}
+
+function renderConfiguration() {
+  const labels = {
+    azureFoundryEndpoint: "AZURE_FOUNDRY_ENDPOINT",
+    azureFoundryApiVersion: "AZURE_FOUNDRY_API_VERSION",
+    azureFoundryProject: "AZURE_FOUNDRY_PROJECT",
+    azureFoundryAgentId: "AZURE_FOUNDRY_AGENT_ID",
+    caseIngestEndpoint: "CASE_INGEST_ENDPOINT",
+    documentAiEndpoint: "DOCUMENT_AI_ENDPOINT",
+    businessRulesEndpoint: "BUSINESS_RULES_ENDPOINT",
+  };
+  renderList(
+    configList,
+    Object.entries(appConfig),
+    ([key, value]) => `<strong>${labels[key]}</strong>: <code>${value}</code>`
+  );
 }
 
 function analyzeCase(filesOverride) {
@@ -488,3 +542,4 @@ voiceInputButton.addEventListener("click", () => {
 
 foundryPreview.textContent = "Analyze a case to prepare the Foundry AI request payload.";
 summary.innerHTML = "<p>No case analyzed yet.</p>";
+renderConfiguration();

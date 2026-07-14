@@ -25,11 +25,31 @@ The demo mirrors the proposed flow:
 
 ## Run locally
 
-Because this repository is intentionally dependency-free, you can open the app directly in a browser or serve it locally:
+Because this repository is intentionally dependency-free, you can open the app directly in a browser or serve it locally.
+
+### Option A: static-only preview
 
 ```bash
 cd /home/runner/work/demo/demo
 python3 -m http.server 8000
+```
+
+Then open `http://localhost:8000`.
+
+### Option B: environment-driven endpoint config (recommended)
+
+Use `serve_demo.py` to inject Azure/Foundry endpoints into `config.js` at runtime.
+
+```bash
+cd /home/runner/work/demo/demo
+export AZURE_FOUNDRY_ENDPOINT="https://<resource>.openai.azure.com/openai"
+export AZURE_FOUNDRY_API_VERSION="2024-05-01-preview"
+export AZURE_FOUNDRY_PROJECT="mortgage-doc-intelligence-demo"
+export AZURE_FOUNDRY_AGENT_ID="financing-document-intelligence"
+export CASE_INGEST_ENDPOINT="https://<internal>/api/case-ingest"
+export DOCUMENT_AI_ENDPOINT="https://<internal>/api/document-ai"
+export BUSINESS_RULES_ENDPOINT="https://<internal>/api/business-rules"
+python3 serve_demo.py
 ```
 
 Then open `http://localhost:8000`.

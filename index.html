@@ -50,6 +50,15 @@
         </div>
       </section>
 
+      <section class="card">
+        <h2>Runtime endpoint configuration</h2>
+        <p class="helper">
+          These values come from environment variables via <code>config.js</code> when served with
+          <code>serve_demo.py</code>.
+        </p>
+        <ul id="config-list"></ul>
+      </section>
+
       <section class="grid">
         <section class="card">
           <h2>1. Financing case intake</h2>
@@ -167,6 +176,7 @@
       </section>
     </main>
 
+    <script src="./config.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>
